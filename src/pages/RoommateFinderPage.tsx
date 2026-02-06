@@ -7,19 +7,19 @@ import { Heart, X, MapPin, Briefcase, Home, Calendar, Sparkles } from "lucide-re
 const mockRoommates = [
   {
     id: 1,
-    name: "Sarah Chen",
-    age: 24,
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800&q=80",
-    occupation: "Software Engineer",
-    location: "San Francisco, CA",
-    budget: "2000-2500",
-    moveInDate: "March 2026",
-    bio: "Love cooking, yoga, and weekend hiking. Looking for a clean, respectful roommate who enjoys a balance of social time and quiet evenings.",
-    interests: ["Cooking", "Yoga", "Hiking", "Reading"],
+    name: "Taha Rashid",
+    age: 19,
+    image: "https://media.licdn.com/dms/image/v2/D4E03AQGCuRZawN-NOg/profile-displayphoto-crop_800_800/B4EZtYRABCJwAI-/0/1766712410544?e=1772064000&v=beta&t=KfyQJd4kzX0jPm4a8bf-CDvoXPz4c3pbI9g5KXfWsDk",
+    program: "Software Engineering",
+    location: "Ottawa, Ontario, Canada",
+    budget: "3000-4500",
+    moveInDate: "August 2026",
+    bio: "Love running, biking, playing BeatSaber on my VR headset, and learning Japanese!",
+    interests: ["Running", "Biking", "BeatSaber", "Learning Japanese"],
     preferences: {
       cleanliness: "Very clean",
-      socialLevel: "Moderately social",
-      pets: "Cat friendly",
+      socialLevel: "Very social",
+      pets: "No pets",
       lifestyle: "Early bird"
     }
   },
@@ -28,7 +28,7 @@ const mockRoommates = [
     name: "Marcus Johnson",
     age: 27,
     image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80",
-    occupation: "Graphic Designer",
+    program: "Graphic Designer",
     location: "Oakland, CA",
     budget: "1500-2000",
     moveInDate: "April 2026",
@@ -46,7 +46,7 @@ const mockRoommates = [
     name: "Emily Rodriguez",
     age: 22,
     image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=800&q=80",
-    occupation: "Graduate Student",
+    program: "Graduate Student",
     location: "Berkeley, CA",
     budget: "1200-1800",
     moveInDate: "May 2026",
@@ -264,7 +264,7 @@ const RoommateFinderPage = () => {
                 <div className="mb-4 space-y-2">
                   <div className="flex items-center gap-2 text-gray-700">
                     <Briefcase className="h-4 w-4 text-primary" />
-                    <span className="text-sm font-medium">{currentRoommate.occupation}</span>
+                    <span className="text-sm font-medium">{currentRoommate.program}</span>
                   </div>
                   <div className="flex items-center gap-2 text-gray-700">
                     <MapPin className="h-4 w-4 text-primary" />
