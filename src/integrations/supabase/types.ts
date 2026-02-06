@@ -42,6 +42,7 @@ export type Database = {
       profiles: {
         Row: {
           id: string
+          user_type: "student" | "landlord" | null
           introduction: string | null
           max_budget: number | null
           min_bedrooms: number | null
@@ -54,6 +55,7 @@ export type Database = {
         }
         Insert: {
           id: string
+          user_type?: "student" | "landlord" | null
           introduction?: string | null
           max_budget?: number | null
           min_bedrooms?: number | null
@@ -63,6 +65,7 @@ export type Database = {
           pet_friendly?: boolean | null
         }
         Update: {
+          user_type?: "student" | "landlord" | null
           introduction?: string | null
           max_budget?: number | null
           min_bedrooms?: number | null
@@ -71,6 +74,18 @@ export type Database = {
           move_in_month?: string | null
           pet_friendly?: boolean | null
           updated_at?: string
+        }
+      }
+      admin_users: {
+        Row: {
+          email: string
+          created_at: string | null
+        }
+        Insert: {
+          email: string
+        }
+        Update: {
+          email?: string
         }
       }
     }

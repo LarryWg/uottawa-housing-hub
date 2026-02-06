@@ -31,6 +31,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
 const profileSchema = z.object({
+  userType: z.enum(["student", "landlord"]).optional(),
   introduction: z.string().optional(),
   maxBudget: z.coerce.number().min(0).optional().nullable(),
   minBedrooms: z.coerce.number().min(1).max(5).optional().nullable(),
@@ -80,6 +81,7 @@ const ProfilePage = () => {
         .upsert(
           {
             id: user.id,
+            user_type: values.userType || null,
             introduction: values.introduction || null,
             max_budget: values.maxBudget ?? null,
             min_bedrooms: values.minBedrooms ?? null,
@@ -103,6 +105,7 @@ const ProfilePage = () => {
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
+      userType: "student",
       introduction: "",
       maxBudget: null,
       minBedrooms: null,
@@ -116,6 +119,7 @@ const ProfilePage = () => {
   useEffect(() => {
     if (profile) {
       form.reset({
+        userType: (profile.user_type as "student" | "landlord") ?? "student",
         introduction: profile.introduction ?? "",
         maxBudget: profile.max_budget ?? null,
         minBedrooms: profile.min_bedrooms ?? null,
@@ -156,6 +160,30 @@ const ProfilePage = () => {
               onSubmit={form.handleSubmit((v) => updateProfile.mutate(v))}
               className="space-y-8"
             >
+              <FormField
+                control={form.control}
+                name="userType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Account type</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="student">Student</SelectItem>
+                        <SelectItem value="landlord">Landlord</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      Student: find housing and roommates. Landlord: list and manage properties.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="introduction"

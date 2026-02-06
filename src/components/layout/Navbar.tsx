@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Users, Map, FileText, Heart, Menu, X, User, LogOut } from "lucide-react";
+import { Home, Users, Map, FileText, Heart, Menu, X, User, LogOut, Shield } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 const navLinks = [
   { to: "/", label: "Home", icon: Home },
@@ -24,6 +25,7 @@ export function Navbar() {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, signOut, isLoading: authLoading } = useAuth();
+  const { isAdmin } = useIsAdmin();
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -75,6 +77,14 @@ export function Navbar() {
                         Profile
                       </Link>
                     </DropdownMenuItem>
+                    {isAdmin && (
+                      <DropdownMenuItem asChild>
+                        <Link to="/admin" className="flex items-center gap-2">
+                          <Shield className="h-4 w-4" />
+                          Admin
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem onClick={() => signOut()} className="text-destructive">
                       <LogOut className="h-4 w-4" />
                       Sign out
@@ -148,6 +158,16 @@ export function Navbar() {
                         <User className="h-5 w-5" />
                         Profile
                       </Link>
+                      {isAdmin && (
+                        <Link
+                          to="/admin"
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                        >
+                          <Shield className="h-5 w-5" />
+                          Admin
+                        </Link>
+                      )}
                       <button
                         onClick={() => {
                           signOut();
