@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { Heart, X, MapPin, Briefcase, Home, Calendar, Sparkles } from "lucide-react";
+import { Heart, X, MapPin, Briefcase, Home, Calendar, Sparkles, Plus, Upload } from "lucide-react";
 
 // Mock data - replace with your actual data source
 const mockRoommates = [
@@ -68,17 +68,79 @@ const RoommateFinderPage = () => {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [newInterest, setNewInterest] = useState("");
   const cardRef = useRef(null);
+  const fileInputRef = useRef(null);
+
+  const [formData, setFormData] = useState({
+    name: "",
+    age: "",
+    image: "",
+    program: "",
+    location: "",
+    budget: "",
+    moveInDate: "",
+    bio: "",
+    interests: [],
+    preferences: {
+      cleanliness: "",
+      socialLevel: "",
+      pets: "",
+      lifestyle: ""
+    }
+  });
+
+  const handleSubmitProfile = (e) => {
+  e.preventDefault();
+  
+  // Create new profile with unique ID
+  const newProfile = {
+    id: Date.now(),
+    ...formData,
+    age: parseInt(formData.age)
+  };
+  
+  console.log("New profile created:", newProfile);
+  
+  // Add to the roommates pool
+  setRoommates([...roommates, newProfile]);
+  
+  // Reset form and close modal
+  setFormData({
+    name: "",
+    age: "",
+    image: "",
+    program: "",
+    location: "",
+    budget: "",
+    moveInDate: "",
+    bio: "",
+    interests: [],
+    preferences: {
+      cleanliness: "",
+      socialLevel: "",
+      pets: "",
+      lifestyle: ""
+    }
+  });
+  setImagePreview(null);
+  setShowModal(false);
+  
+  alert("Profile created successfully! You can now see it in the swipe deck.");
+};
 
   const currentRoommate = roommates[currentIndex];
 
   const handleSwipe = (direction) => {
-    if (isAnimating) return; // Prevent multiple swipes
+    if (isAnimating) return;
     
     setIsAnimating(true);
     
     if (direction === "right") {
       console.log("Liked:", currentRoommate);
+      // TODO: Save to database/backend
     } else {
       console.log("Passed:", currentRoommate);
     }
@@ -92,7 +154,7 @@ const RoommateFinderPage = () => {
   };
 
   const handleDragStart = (clientX, clientY) => {
-    if (isAnimating) return; // Don't allow dragging during animation
+    if (isAnimating) return;
     setIsDragging(true);
     setDragStart({ x: clientX, y: clientY });
   };
@@ -113,10 +175,8 @@ const RoommateFinderPage = () => {
     const swipeThreshold = 100;
     
     if (Math.abs(dragOffset.x) > swipeThreshold) {
-      // Determine swipe direction
       const direction = dragOffset.x > 0 ? "right" : "left";
       
-      // Animate card off screen
       setDragOffset({
         x: dragOffset.x > 0 ? 1000 : -1000,
         y: dragOffset.y
@@ -124,7 +184,6 @@ const RoommateFinderPage = () => {
       
       handleSwipe(direction);
     } else {
-      // Return to center
       setDragOffset({ x: 0, y: 0 });
     }
   };
@@ -162,13 +221,96 @@ const RoommateFinderPage = () => {
 
   // Button handlers
   const handleButtonSwipe = (direction) => {
-    if (isAnimating) return; // Prevent button spam
+    if (isAnimating) return;
     
     setDragOffset({
       x: direction === "right" ? 1000 : -1000,
       y: 0
     });
     handleSwipe(direction);
+  };
+
+  // Image upload handler
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+        setFormData({ ...formData, image: reader.result });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Form handlers
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handlePreferenceChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      preferences: { ...formData.preferences, [name]: value }
+    });
+  };
+
+  const handleAddInterest = () => {
+    if (newInterest.trim() && formData.interests.length < 8) {
+      setFormData({
+        ...formData,
+        interests: [...formData.interests, newInterest.trim()]
+      });
+      setNewInterest("");
+    }
+  };
+
+  const handleRemoveInterest = (index) => {
+    setFormData({
+      ...formData,
+      interests: formData.interests.filter((_, i) => i !== index)
+    });
+  };
+
+  const handleSubmitProfile = (e) => {
+    e.preventDefault();
+    
+    // TODO: Send to backend/database
+    const newProfile = {
+      id: Date.now(),
+      ...formData,
+      age: parseInt(formData.age)
+    };
+    
+    console.log("New profile created:", newProfile);
+    
+    // Optionally add to local state for demo purposes
+    // setRoommates([...roommates, newProfile]);
+    
+    // Reset form and close modal
+    setFormData({
+      name: "",
+      age: "",
+      image: "",
+      program: "",
+      location: "",
+      budget: "",
+      moveInDate: "",
+      bio: "",
+      interests: [],
+      preferences: {
+        cleanliness: "",
+        socialLevel: "",
+        pets: "",
+        lifestyle: ""
+      }
+    });
+    setImagePreview(null);
+    setShowModal(false);
+    
+    alert("Profile created successfully! It will be visible to other users once approved.");
   };
 
   if (currentIndex >= roommates.length) {
@@ -202,6 +344,17 @@ const RoommateFinderPage = () => {
       <Navbar />
       <main className="flex flex-1 items-center justify-center px-4 py-8">
         <div className="w-full max-w-md">
+          {/* Create Profile Button */}
+          <div className="mb-4 flex justify-end">
+            <button
+              onClick={() => setShowModal(true)}
+              className="flex items-center gap-2 rounded-full bg-primary px-6 py-3 font-semibold text-white shadow-lg transition-all hover:scale-105 active:scale-95"
+            >
+              <Plus className="h-5 w-5" />
+              Create Profile
+            </button>
+          </div>
+
           {/* Card Stack */}
           <div className="relative mb-8 aspect-[3/4] w-full">
             {/* Next card preview */}
@@ -355,6 +508,266 @@ const RoommateFinderPage = () => {
           </div>
         </div>
       </main>
+
+      {/* Modal */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl">
+            <h2 className="mb-6 text-2xl font-bold">Create Your Profile</h2>
+            
+            <form onSubmit={handleSubmitProfile} className="space-y-6">
+              {/* Image Upload */}
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700">Profile Photo</label>
+                <div className="flex items-center gap-4">
+                  {imagePreview ? (
+                    <img src={imagePreview} alt="Preview" className="h-24 w-24 rounded-full object-cover" />
+                  ) : (
+                    <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gray-200">
+                      <Upload className="h-8 w-8 text-gray-400" />
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90"
+                  >
+                    Upload Photo
+                  </button>
+                </div>
+              </div>
+
+              {/* Basic Info */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-gray-700">Name*</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                </div>
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-gray-700">Age*</label>
+                  <input
+                    type="number"
+                    name="age"
+                    value={formData.age}
+                    onChange={handleInputChange}
+                    required
+                    min="18"
+                    max="100"
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700">Program/Occupation*</label>
+                <input
+                  type="text"
+                  name="program"
+                  value={formData.program}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700">Location*</label>
+                <input
+                  type="text"
+                  name="location"
+                  value={formData.location}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="City, State/Province, Country"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-gray-700">Budget ($/month)*</label>
+                  <input
+                    type="text"
+                    name="budget"
+                    value={formData.budget}
+                    onChange={handleInputChange}
+                    required
+                    placeholder="e.g., 1500-2000"
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                </div>
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-gray-700">Move-in Date*</label>
+                  <input
+                    type="text"
+                    name="moveInDate"
+                    value={formData.moveInDate}
+                    onChange={handleInputChange}
+                    required
+                    placeholder="e.g., May 2026"
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700">Bio*</label>
+                <textarea
+                  name="bio"
+                  value={formData.bio}
+                  onChange={handleInputChange}
+                  required
+                  rows={4}
+                  placeholder="Tell us about yourself..."
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+
+              {/* Interests */}
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700">Interests (max 8)</label>
+                <div className="mb-2 flex gap-2">
+                  <input
+                    type="text"
+                    value={newInterest}
+                    onChange={(e) => setNewInterest(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddInterest())}
+                    placeholder="Add an interest"
+                    className="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddInterest}
+                    disabled={formData.interests.length >= 8}
+                    className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 disabled:opacity-50"
+                  >
+                    Add
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {formData.interests.map((interest, index) => (
+                    <span
+                      key={index}
+                      className="flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary"
+                    >
+                      {interest}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveInterest(index)}
+                        className="ml-1 hover:text-red-500"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Preferences */}
+              <div>
+                <h3 className="mb-4 font-semibold text-gray-900">Preferences</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-gray-700">Cleanliness*</label>
+                    <select
+                      name="cleanliness"
+                      value={formData.preferences.cleanliness}
+                      onChange={handlePreferenceChange}
+                      required
+                      className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    >
+                      <option value="">Select...</option>
+                      <option value="Very clean">Very clean</option>
+                      <option value="Clean">Clean</option>
+                      <option value="Organized">Organized</option>
+                      <option value="Relaxed">Relaxed</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-gray-700">Social Level*</label>
+                    <select
+                      name="socialLevel"
+                      value={formData.preferences.socialLevel}
+                      onChange={handlePreferenceChange}
+                      required
+                      className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    >
+                      <option value="">Select...</option>
+                      <option value="Very social">Very social</option>
+                      <option value="Moderately social">Moderately social</option>
+                      <option value="Social on weekends">Social on weekends</option>
+                      <option value="Quiet most days">Quiet most days</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-gray-700">Pets*</label>
+                    <select
+                      name="pets"
+                      value={formData.preferences.pets}
+                      onChange={handlePreferenceChange}
+                      required
+                      className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    >
+                      <option value="">Select...</option>
+                      <option value="No pets">No pets</option>
+                      <option value="Cat friendly">Cat friendly</option>
+                      <option value="Dog friendly">Dog friendly</option>
+                      <option value="All pets welcome">All pets welcome</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-gray-700">Lifestyle*</label>
+                    <select
+                      name="lifestyle"
+                      value={formData.preferences.lifestyle}
+                      onChange={handlePreferenceChange}
+                      required
+                      className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    >
+                      <option value="">Select...</option>
+                      <option value="Early bird">Early bird</option>
+                      <option value="Night owl">Night owl</option>
+                      <option value="Flexible schedule">Flexible schedule</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Form Actions */}
+              <div className="flex gap-4">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="flex-1 rounded-lg border border-gray-300 px-4 py-3 font-medium text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 rounded-lg bg-primary px-4 py-3 font-medium text-white hover:bg-primary/90"
+                >
+                  Create Profile
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       <Footer />
     </div>
   );
