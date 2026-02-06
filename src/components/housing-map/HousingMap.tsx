@@ -5,6 +5,8 @@ import type { HousingListing } from "@/types/listings";
 
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 const UOTTAWA_CENTER: [number, number] = [-75.6919, 45.4215];
+const ROUTE_SOURCE_ID = "route-source";
+const ROUTE_LAYER_ID = "route-layer";
 
 interface HousingMapProps {
   listings: HousingListing[];
@@ -60,6 +62,77 @@ export function HousingMap({ listings, selectedListingId, onListingClick }: Hous
         mapRef.current.flyTo({ center: [listing.lng, listing.lat], zoom: 16, duration: 800 });
       }
     }
+  }, [selectedListingId, listings]);
+
+  // Draw route line from campus to selected listing (walking path)
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !MAPBOX_TOKEN) return;
+
+    let cancelled = false;
+
+    const removeRoute = () => {
+      if (map.getLayer(ROUTE_LAYER_ID)) map.removeLayer(ROUTE_LAYER_ID);
+      if (map.getSource(ROUTE_SOURCE_ID)) map.removeSource(ROUTE_SOURCE_ID);
+    };
+
+    const addRoute = async (listing: HousingListing) => {
+      const coords = `${UOTTAWA_CENTER[0]},${UOTTAWA_CENTER[1]};${listing.lng},${listing.lat}`;
+      const url = `https://api.mapbox.com/directions/v5/mapbox/walking/${coords}?geometries=geojson&access_token=${MAPBOX_TOKEN}`;
+
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        if (cancelled) return;
+        const coordinates = data.routes?.[0]?.geometry?.coordinates;
+        if (!coordinates?.length) return;
+
+        const geojson: GeoJSON.Feature<GeoJSON.LineString> = {
+          type: "Feature",
+          properties: {},
+          geometry: { type: "LineString", coordinates },
+        };
+
+        if (!map.getSource(ROUTE_SOURCE_ID)) {
+          map.addSource(ROUTE_SOURCE_ID, { type: "geojson", data: geojson });
+          map.addLayer({
+            id: ROUTE_LAYER_ID,
+            type: "line",
+            source: ROUTE_SOURCE_ID,
+            layout: { "line-join": "round", "line-cap": "round" },
+            paint: {
+              "line-color": "#8F001A",
+              "line-width": 4,
+            },
+          });
+        } else {
+          (map.getSource(ROUTE_SOURCE_ID) as mapboxgl.GeoJSONSource).setData(geojson);
+        }
+      } catch {
+        if (!cancelled) removeRoute();
+      }
+    };
+
+    if (!selectedListingId) {
+      removeRoute();
+      return;
+    }
+    const listing = listings.find((l) => l.id === selectedListingId);
+    if (!listing) {
+      removeRoute();
+      return;
+    }
+    const onLoad = () => addRoute(listing);
+    if (map.isStyleLoaded()) {
+      onLoad();
+    } else {
+      map.once("load", onLoad);
+    }
+
+    return () => {
+      cancelled = true;
+      removeRoute();
+    };
   }, [selectedListingId, listings]);
 
   useEffect(() => {
