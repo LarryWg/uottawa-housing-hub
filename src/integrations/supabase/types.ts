@@ -14,7 +14,65 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      listings: {
+        Row: {
+          id: string
+          title: string
+          address: string
+          lat: number
+          lng: number
+          price: number
+          bedrooms: number
+          bathrooms: number
+          distance_to_campus: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          address: string
+          lat: number
+          lng: number
+          price: number
+          bedrooms: number
+          bathrooms: number
+          distance_to_campus: string
+        }
+        Update: Partial<Database["public"]["Tables"]["listings"]["Insert"]>
+      }
+      profiles: {
+        Row: {
+          id: string
+          introduction: string | null
+          max_budget: number | null
+          min_bedrooms: number | null
+          max_bedrooms: number | null
+          preferred_areas: string[] | null
+          move_in_month: string | null
+          pet_friendly: boolean | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id: string
+          introduction?: string | null
+          max_budget?: number | null
+          min_bedrooms?: number | null
+          max_bedrooms?: number | null
+          preferred_areas?: string[] | null
+          move_in_month?: string | null
+          pet_friendly?: boolean | null
+        }
+        Update: {
+          introduction?: string | null
+          max_budget?: number | null
+          min_bedrooms?: number | null
+          max_bedrooms?: number | null
+          preferred_areas?: string[] | null
+          move_in_month?: string | null
+          pet_friendly?: boolean | null
+          updated_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never
