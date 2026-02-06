@@ -9,7 +9,6 @@ A housing platform for University of Ottawa students. Connect with compatible ro
 - **Lease Checker** — Upload your lease for AI analysis of red flags, hidden fees, and concerning terms
 
 ## Tech Stack
-
 - Vite
 - TypeScript
 - React
