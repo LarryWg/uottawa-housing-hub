@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { Heart, X, MapPin, Briefcase, GraduationCap, Home, Calendar, Sparkles } from "lucide-react";
+import { Heart, X, MapPin, Briefcase, Home, Calendar, Sparkles } from "lucide-react";
 
 // Mock data - replace with your actual data source
 const mockRoommates = [
@@ -64,25 +64,111 @@ const mockRoommates = [
 const RoommateFinderPage = () => {
   const [roommates, setRoommates] = useState(mockRoommates);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [swipeDirection, setSwipeDirection] = useState(null);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const cardRef = useRef(null);
 
   const currentRoommate = roommates[currentIndex];
 
   const handleSwipe = (direction) => {
-    setSwipeDirection(direction);
+    if (isAnimating) return; // Prevent multiple swipes
+    
+    setIsAnimating(true);
+    
+    if (direction === "right") {
+      console.log("Liked:", currentRoommate);
+    } else {
+      console.log("Passed:", currentRoommate);
+    }
     
     setTimeout(() => {
-      if (direction === "right") {
-        // Handle like - save to matches, send to backend, etc.
-        console.log("Liked:", currentRoommate);
-      } else {
-        // Handle pass
-        console.log("Passed:", currentRoommate);
-      }
-      
-      setSwipeDirection(null);
       setCurrentIndex((prev) => prev + 1);
+      setDragOffset({ x: 0, y: 0 });
+      setIsAnimating(false);
+      setIsDragging(false);
     }, 300);
+  };
+
+  const handleDragStart = (clientX, clientY) => {
+    if (isAnimating) return; // Don't allow dragging during animation
+    setIsDragging(true);
+    setDragStart({ x: clientX, y: clientY });
+  };
+
+  const handleDragMove = (clientX, clientY) => {
+    if (!isDragging || isAnimating) return;
+    
+    const deltaX = clientX - dragStart.x;
+    const deltaY = clientY - dragStart.y;
+    setDragOffset({ x: deltaX, y: deltaY });
+  };
+
+  const handleDragEnd = () => {
+    if (!isDragging || isAnimating) return;
+    
+    setIsDragging(false);
+    
+    const swipeThreshold = 100;
+    
+    if (Math.abs(dragOffset.x) > swipeThreshold) {
+      // Determine swipe direction
+      const direction = dragOffset.x > 0 ? "right" : "left";
+      
+      // Animate card off screen
+      setDragOffset({
+        x: dragOffset.x > 0 ? 1000 : -1000,
+        y: dragOffset.y
+      });
+      
+      handleSwipe(direction);
+    } else {
+      // Return to center
+      setDragOffset({ x: 0, y: 0 });
+    }
+  };
+
+  // Mouse events
+  const handleMouseDown = (e) => {
+    e.preventDefault();
+    handleDragStart(e.clientX, e.clientY);
+  };
+
+  const handleMouseMove = (e) => {
+    e.preventDefault();
+    handleDragMove(e.clientX, e.clientY);
+  };
+
+  const handleMouseUp = (e) => {
+    e.preventDefault();
+    handleDragEnd();
+  };
+
+  // Touch events
+  const handleTouchStart = (e) => {
+    const touch = e.touches[0];
+    handleDragStart(touch.clientX, touch.clientY);
+  };
+
+  const handleTouchMove = (e) => {
+    const touch = e.touches[0];
+    handleDragMove(touch.clientX, touch.clientY);
+  };
+
+  const handleTouchEnd = (e) => {
+    handleDragEnd();
+  };
+
+  // Button handlers
+  const handleButtonSwipe = (direction) => {
+    if (isAnimating) return; // Prevent button spam
+    
+    setDragOffset({
+      x: direction === "right" ? 1000 : -1000,
+      y: 0
+    });
+    handleSwipe(direction);
   };
 
   if (currentIndex >= roommates.length) {
@@ -103,8 +189,16 @@ const RoommateFinderPage = () => {
     );
   }
 
+  const rotation = dragOffset.x / 20;
+  const opacity = Math.abs(dragOffset.x) > 100 ? 0.5 : 1;
+
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-b from-gray-50 to-white">
+    <div 
+      className="flex min-h-screen flex-col bg-gradient-to-b from-gray-50 to-white"
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
+    >
       <Navbar />
       <main className="flex flex-1 items-center justify-center px-4 py-8">
         <div className="w-full max-w-md">
@@ -115,22 +209,44 @@ const RoommateFinderPage = () => {
               <div className="absolute inset-0 scale-95 rounded-3xl bg-white shadow-lg opacity-50" />
             )}
             
+            {/* Swipe indicators */}
+            {isDragging && Math.abs(dragOffset.x) > 50 && (
+              <>
+                {dragOffset.x > 0 ? (
+                  <div className="absolute left-8 top-8 z-10 rounded-lg border-4 border-green-500 bg-white px-6 py-3 text-2xl font-bold text-green-500 rotate-12 shadow-lg">
+                    LIKE
+                  </div>
+                ) : (
+                  <div className="absolute right-8 top-8 z-10 rounded-lg border-4 border-red-500 bg-white px-6 py-3 text-2xl font-bold text-red-500 -rotate-12 shadow-lg">
+                    NOPE
+                  </div>
+                )}
+              </>
+            )}
+            
             {/* Current card */}
             <div
-              className={`absolute inset-0 overflow-hidden rounded-3xl bg-white shadow-2xl transition-all duration-300 ${
-                swipeDirection === "right" 
-                  ? "translate-x-full rotate-12 opacity-0" 
-                  : swipeDirection === "left"
-                  ? "-translate-x-full -rotate-12 opacity-0"
-                  : ""
-              }`}
+              ref={cardRef}
+              onMouseDown={handleMouseDown}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              style={{
+                transform: `translate(${dragOffset.x}px, ${dragOffset.y}px) rotate(${rotation}deg)`,
+                opacity: opacity,
+                transition: isDragging ? 'none' : 'all 0.3s ease-out',
+                cursor: isAnimating ? 'default' : isDragging ? 'grabbing' : 'grab',
+                pointerEvents: isAnimating ? 'none' : 'auto'
+              }}
+              className="absolute inset-0 overflow-hidden rounded-3xl bg-white shadow-2xl select-none"
             >
               {/* Profile Image */}
-              <div className="relative h-2/5 overflow-hidden">
+              <div className="relative h-2/5 overflow-hidden pointer-events-none">
                 <img
                   src={currentRoommate.image}
                   alt={currentRoommate.name}
                   className="h-full w-full object-cover"
+                  draggable="false"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                 
@@ -216,15 +332,17 @@ const RoommateFinderPage = () => {
           {/* Action Buttons */}
           <div className="flex justify-center gap-6">
             <button
-              onClick={() => handleSwipe("left")}
-              className="flex h-16 w-16 items-center justify-center rounded-full border-4 border-red-500 bg-white text-red-500 shadow-lg transition-all hover:scale-110 active:scale-95"
+              onClick={() => handleButtonSwipe("left")}
+              disabled={isAnimating}
+              className="flex h-16 w-16 items-center justify-center rounded-full border-4 border-red-500 bg-white text-red-500 shadow-lg transition-all hover:scale-110 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Pass"
             >
               <X className="h-8 w-8" />
             </button>
             <button
-              onClick={() => handleSwipe("right")}
-              className="flex h-16 w-16 items-center justify-center rounded-full border-4 border-green-500 bg-white text-green-500 shadow-lg transition-all hover:scale-110 active:scale-95"
+              onClick={() => handleButtonSwipe("right")}
+              disabled={isAnimating}
+              className="flex h-16 w-16 items-center justify-center rounded-full border-4 border-green-500 bg-white text-green-500 shadow-lg transition-all hover:scale-110 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Like"
             >
               <Heart className="h-8 w-8" />
