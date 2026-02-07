@@ -30,6 +30,8 @@ export type Database = {
           landlord_id: string | null
           landlord_name: string | null
           landlord_email: string | null
+          description: string | null
+          created_at: string | null
         }
         Insert: {
           id?: string
@@ -45,6 +47,7 @@ export type Database = {
           landlord_id?: string | null
           landlord_name?: string | null
           landlord_email?: string | null
+          description?: string | null
         }
         Update: Partial<Database["public"]["Tables"]["listings"]["Insert"]>
       }
