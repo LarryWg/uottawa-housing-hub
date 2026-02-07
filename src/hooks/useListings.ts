@@ -15,7 +15,7 @@ export function useListings() {
       try {
         const { data, error } = await supabase
           .from("listings")
-          .select("id, title, address, lat, lng, price, bedrooms, bathrooms, distance_to_campus")
+          .select("id, title, address, lat, lng, price, bedrooms, bathrooms, distance_to_campus, description")
           .limit(100);
 
         if (error) {
@@ -28,6 +28,7 @@ export function useListings() {
 
         return data.map((row: Record<string, unknown>) => ({
           id: String(row.id),
+          landlordId: row.landlord_id != null ? String(row.landlord_id) : null,
           title: String(row.title),
           address: String(row.address),
           lat: Number(row.lat),
@@ -36,6 +37,7 @@ export function useListings() {
           bedrooms: Number(row.bedrooms),
           bathrooms: Number(row.bathrooms),
           distanceToCampus: String(row.distance_to_campus ?? "—"),
+          description: row.description ? String(row.description) : undefined,
         }));
       } catch {
         return MOCK_LISTINGS;

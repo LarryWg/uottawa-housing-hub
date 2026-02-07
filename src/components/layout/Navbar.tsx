@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Users, Map, FileText, Heart, Menu, X, User, LogOut, Shield } from "lucide-react";
+import { Home, Users, Map, FileText, Heart, Menu, X, User, LogOut, Shield, LayoutList } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -12,8 +12,9 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { useUserProfile } from "@/hooks/useUserProfile";
 
-const navLinks = [
+const studentNavLinks = [
   { to: "/", label: "Home", icon: Home },
   { to: "/roommate-finder", label: "Roommate Finder", icon: Users },
   { to: "/housing-map", label: "Housing Map", icon: Map },
@@ -21,11 +22,20 @@ const navLinks = [
   { to: "/matches", label: "My Matches", icon: Heart },
 ];
 
+const landlordNavLinks = [
+  { to: "/", label: "Home", icon: Home },
+  { to: "/my-listings", label: "My Listings", icon: LayoutList },
+  { to: "/housing-map", label: "Housing Map", icon: Map },
+  { to: "/lease-checker", label: "Lease Checker", icon: FileText },
+];
+
 export function Navbar() {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, signOut, isLoading: authLoading } = useAuth();
   const { isAdmin } = useIsAdmin();
+  const { isLandlord } = useUserProfile();
+  const navLinks = isLandlord ? landlordNavLinks : studentNavLinks;
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

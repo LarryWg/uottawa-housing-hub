@@ -10,9 +10,9 @@ import RoommateFinderPage from "./pages/RoommateFinderPage";
 import HousingMapPage from "./pages/HousingMapPage";
 import LeaseCheckerPage from "./pages/LeaseCheckerPage";
 import MatchesPage from "./pages/MatchesPage";
-import LoginPage from "./pages/LoginPage";
-import SignUpPage from "./pages/SignUpPage";
+import AuthPage from "./pages/AuthPage";
 import ProfilePage from "./pages/ProfilePage";
+import MyListingsPage from "./pages/MyListingsPage";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
 import NotFound from "./pages/NotFound";
 
@@ -26,8 +26,8 @@ const App = () => (
           <Toaster />
           <Sonner />
           <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignUpPage />} />
+            <Route path="/login" element={<AuthPage />} />
+            <Route path="/signup" element={<AuthPage />} />
             <Route
               path="/"
               element={
@@ -39,7 +39,7 @@ const App = () => (
             <Route
               path="/roommate-finder"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedRole="student">
                   <RoommateFinderPage />
                 </ProtectedRoute>
               }
@@ -63,8 +63,16 @@ const App = () => (
             <Route
               path="/matches"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedRole="student">
                   <MatchesPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/my-listings"
+              element={
+                <ProtectedRoute allowedRole="landlord">
+                  <MyListingsPage />
                 </ProtectedRoute>
               }
             />
