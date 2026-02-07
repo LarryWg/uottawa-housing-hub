@@ -20,6 +20,8 @@ export function useUserProfile() {
       return data;
     },
     enabled: !!user?.id,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
   });
 
   const userType: UserType = (profile?.user_type as UserType) ?? "student";

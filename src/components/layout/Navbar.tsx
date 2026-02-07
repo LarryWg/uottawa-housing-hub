@@ -81,6 +81,9 @@ export function Navbar() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
+                    <div className="px-2 py-1.5 text-xs text-muted-foreground">
+                      Signed in as {isLandlord ? "Landlord" : "Student"}
+                    </div>
                     <DropdownMenuItem asChild>
                       <Link to="/profile" className="flex items-center gap-2">
                         <User className="h-4 w-4" />
@@ -160,6 +163,9 @@ export function Navbar() {
                 <div className="mt-2 flex flex-col gap-1 border-t pt-4">
                   {user ? (
                     <>
+                      <div className="px-4 py-2 text-xs text-muted-foreground">
+                        {isLandlord ? "Landlord" : "Student"} account
+                      </div>
                       <Link
                         to="/profile"
                         onClick={() => setMobileMenuOpen(false)}

@@ -97,8 +97,8 @@ const ProfilePage = () => {
         );
       if (error) throw error;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
+    onSuccess: async () => {
+      await queryClient.refetchQueries({ queryKey: ["profile", user?.id] });
       toast.success("Profile saved!");
     },
     onError: (err: Error) => toast.error(err.message),
