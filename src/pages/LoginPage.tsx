@@ -64,7 +64,23 @@ const LoginPage = () => {
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar />
-      <main className="flex flex-1 items-center justify-center px-4 py-12">
+      <main className="flex flex-1 flex-col items-center justify-center gap-8 px-4 py-12 md:flex-row md:gap-12">
+        {/* uOttawa campus image - left on desktop */}
+        <div className="hidden w-full max-w-md overflow-hidden rounded-2xl shadow-xl md:block md:max-w-lg">
+          <img
+            src="https://cms.macleans.ca/wp-content/uploads/2024/08/University-of-Ottawa-20221006-BF-FALL-CAMPUS-072-scaled.jpg"
+            alt="University of Ottawa - Tabaret Hall"
+            className="h-full w-full object-cover"
+          />
+        </div>
+        {/* uOttawa image on mobile - above form */}
+        <div className="block w-full max-w-xs overflow-hidden rounded-2xl shadow-lg md:hidden">
+          <img
+            src="https://cms.macleans.ca/wp-content/uploads/2024/08/University-of-Ottawa-20221006-BF-FALL-CAMPUS-072-scaled.jpg"
+            alt="University of Ottawa"
+            className="h-40 w-full object-cover"
+          />
+        </div>
         <div className="w-full max-w-md space-y-8">
           <div className="text-center">
             <h1 className="text-2xl font-bold tracking-tight">Sign in</h1>

@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Heart, X, MapPin, Briefcase, Home, Calendar, Sparkles, Eye, EyeOff, MessageCircle } from "lucide-react";
@@ -94,50 +94,61 @@ const RoommateFinderPage = () => {
     enabled: !!user?.id,
   });
 
-  // Convert profile data to roommate card format
-  const convertProfileToRoommate = (profileData) => {
-    if (!profileData || !user) return null;
-    
-    // Extract interests from introduction or use empty array
-    const interests = profileData.introduction 
-      ? profileData.introduction.split(',').map(s => s.trim()).slice(0, 4)
-      : [];
+  // Fetch roommate profiles from Supabase (students with profile_visible = true, excluding self)
+  const { data: dbProfiles = [] } = useQuery({
+    queryKey: ["roommate-profiles", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, introduction, max_budget, preferred_areas, move_in_month, pet_friendly, user_type, display_name, avatar_url")
+        .eq("user_type", "student")
+        .eq("profile_visible", true)
+        .neq("id", user.id);
+      if (error) return [];
+      return data ?? [];
+    },
+    enabled: !!user?.id,
+  });
 
+  // Convert DB profile + auth user to roommate card (we need email from auth - we don't have it for other users)
+  // DB profiles only have id - we use display_name or id for name, no email available
+  const convertProfileToRoommate = (
+    profileData: { id: string; introduction?: string | null; max_budget?: number | null; preferred_areas?: string[] | null; move_in_month?: string | null; pet_friendly?: boolean | null; user_type?: string | null; display_name?: string | null; avatar_url?: string | null },
+    authEmail?: string | null
+  ) => {
+    const interests = profileData.introduction
+      ? profileData.introduction.split(",").map((s) => s.trim()).filter(Boolean).slice(0, 4)
+      : ["No interests listed"];
+    const name = profileData.display_name || (authEmail ? authEmail.split("@")[0] : null) || "Student";
     return {
-      id: `user-${user.id}`,
-      name: user.email?.split('@')[0] || "You", // Use email username or "You"
-      age: 21, // You may want to add age to profile table
-      image: user.user_metadata?.avatar_url || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=800&q=80",
-      program: profileData.user_type === "student" ? "Student" : "Landlord",
-      location: profileData.preferred_areas?.[0] || "Ottawa, ON",
-      budget: profileData.max_budget ? `Up to ${profileData.max_budget}` : "Flexible",
+      id: profileData.id,
+      name,
+      age: 0,
+      image: profileData.avatar_url || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=800&q=80",
+      program: profileData.user_type === "landlord" ? "Landlord" : "Student",
+      location: profileData.preferred_areas?.length ? profileData.preferred_areas.join(", ") : "Ottawa, ON",
+      budget: profileData.max_budget ? `$${profileData.max_budget}` : "Flexible",
       moveInDate: profileData.move_in_month || "Flexible",
       bio: profileData.introduction || "No bio yet.",
-      interests: interests.length > 0 ? interests : ["No interests listed"],
+      interests,
       preferences: {
         cleanliness: "Not specified",
         socialLevel: "Not specified",
         pets: profileData.pet_friendly ? "Pet friendly" : "No pets",
-        lifestyle: "Flexible"
-      }
+        lifestyle: "Flexible",
+      },
     };
   };
 
-  // Add or remove user profile from roommates pool when visibility changes
+  // Build roommate list: DB profiles + mock fallback, excluding current user
   useEffect(() => {
-    if (!profile || !user) return;
-
-    const userRoommateCard = convertProfileToRoommate(profile);
-    const userCardExists = roommates.some(r => r.id === `user-${user.id}`);
-
-    if (profile.profile_visible && userRoommateCard && !userCardExists) {
-      // Add user's profile to the end of the pool
-      setRoommates(prev => [...prev, userRoommateCard]);
-    } else if (!profile.profile_visible && userCardExists) {
-      // Remove user's profile from the pool
-      setRoommates(prev => prev.filter(r => r.id !== `user-${user.id}`));
-    }
-  }, [profile?.profile_visible, user?.id]);
+    const fromDb = dbProfiles.map((p) => convertProfileToRoommate(p));
+    const combined = fromDb.length > 0 ? fromDb : mockRoommates;
+    const filtered = combined.filter((r) => r.id !== user?.id && String(r.id) !== `user-${user?.id}`);
+    setRoommates(filtered);
+    setCurrentIndex(0);
+  }, [dbProfiles, user?.id]);
 
   // Toggle profile visibility mutation
   const toggleVisibility = useMutation({
@@ -278,6 +289,7 @@ const RoommateFinderPage = () => {
   const rotation = dragOffset.x / 20;
   const opacity = Math.abs(dragOffset.x) > 100 ? 0.5 : 1;
   const isProfileVisible = profile?.profile_visible ?? false;
+  const isStudent = profile?.user_type === "student";
 
   return (
     <div 
@@ -289,8 +301,8 @@ const RoommateFinderPage = () => {
       <Navbar />
       <main className="flex flex-1 items-center justify-center px-4 py-8">
         <div className="w-full max-w-md">
-          {/* Public/Private Profile Toggle */}
-          {user && profile && (
+          {/* Public/Private Profile Toggle - only for students */}
+          {user && profile && isStudent && (
             <div className="mb-4 flex justify-end">
               <button
                 onClick={() => toggleVisibility.mutate()}
@@ -367,7 +379,8 @@ const RoommateFinderPage = () => {
                 {/* Name & Age Overlay */}
                 <div className="absolute bottom-4 left-4 right-4">
                   <h2 className="text-3xl font-bold text-white">
-                    {currentRoommate.name}, {currentRoommate.age}
+                    {currentRoommate.name}
+                    {currentRoommate.age > 0 && `, ${currentRoommate.age}`}
                   </h2>
                 </div>
               </div>
@@ -386,7 +399,7 @@ const RoommateFinderPage = () => {
                   </div>
                   <div className="flex items-center gap-2 text-gray-700">
                     <Home className="h-4 w-4 text-primary" />
-                    <span className="text-sm">Budget: ${currentRoommate.budget}/mo</span>
+                    <span className="text-sm">Budget: {currentRoommate.budget.startsWith("$") ? currentRoommate.budget : `$${currentRoommate.budget}`}/mo</span>
                   </div>
                   <div className="flex items-center gap-2 text-gray-700">
                     <Calendar className="h-4 w-4 text-primary" />

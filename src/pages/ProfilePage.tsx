@@ -33,6 +33,7 @@ import { toast } from "sonner";
 
 const profileSchema = z.object({
   userType: z.enum(["student", "landlord"]).optional(),
+  profileVisible: z.boolean().optional(),
   introduction: z.string().optional(),
   maxBudget: z.coerce.number().min(0).optional().nullable(),
   minBedrooms: z.coerce.number().min(1).max(5).optional().nullable(),
@@ -84,6 +85,7 @@ const ProfilePage = () => {
           {
             id: user.id,
             user_type: values.userType || null,
+            profile_visible: values.profileVisible ?? false,
             introduction: values.introduction || null,
             max_budget: values.maxBudget ?? null,
             min_bedrooms: values.minBedrooms ?? null,
@@ -108,6 +110,7 @@ const ProfilePage = () => {
     resolver: zodResolver(profileSchema),
     defaultValues: {
       userType: "student",
+      profileVisible: false,
       introduction: "",
       maxBudget: null,
       minBedrooms: null,
@@ -122,6 +125,7 @@ const ProfilePage = () => {
     if (profile) {
       form.reset({
         userType: (profile.user_type as "student" | "landlord") ?? "student",
+        profileVisible: profile.profile_visible ?? false,
         introduction: profile.introduction ?? "",
         maxBudget: profile.max_budget ?? null,
         minBedrooms: profile.min_bedrooms ?? null,
@@ -188,6 +192,28 @@ const ProfilePage = () => {
                   </FormItem>
                 )}
               />
+              {!isLandlord && (
+                <FormField
+                  control={form.control}
+                  name="profileVisible"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div>
+                        <FormLabel>Show in roommate finder</FormLabel>
+                        <FormDescription>
+                          Allow other students to see your profile when they browse potential roommates.
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              )}
               <FormField
                 control={form.control}
                 name="introduction"

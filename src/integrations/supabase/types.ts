@@ -55,6 +55,7 @@ export type Database = {
         Row: {
           id: string
           user_type: "student" | "landlord" | null
+          profile_visible: boolean | null
           introduction: string | null
           max_budget: number | null
           min_bedrooms: number | null
@@ -70,6 +71,7 @@ export type Database = {
         Insert: {
           id: string
           user_type?: "student" | "landlord" | null
+          profile_visible?: boolean | null
           introduction?: string | null
           max_budget?: number | null
           min_bedrooms?: number | null
@@ -82,6 +84,7 @@ export type Database = {
         }
         Update: {
           user_type?: "student" | "landlord" | null
+          profile_visible?: boolean | null
           introduction?: string | null
           max_budget?: number | null
           min_bedrooms?: number | null
