@@ -5,8 +5,14 @@ A housing platform for University of Ottawa students. Connect with compatible ro
 ## Features
 
 - **Roommate Matcher** — Swipe through compatible profiles based on lifestyle, budget, and preferences
-- **Interactive Housing Map** — Explore apartments near campus with Mapbox
-- **Lease Checker** — Upload your lease for AI analysis of red flags, hidden fees, and concerning terms
+- **Interactive Housing Map** — Explore apartments near campus with Mapbox; filter by price, bedrooms, and distance
+- **AI Lease Checker** — Upload PDF/DOC/DOCX leases for AI analysis of red flags, scam indicators, and Ontario Residential Tenancies Act violations; generate downloadable reports
+- **Housing Advisor** — AI-powered chatbot for housing advice and questions
+- **Housing Preference Filters** — Customize housing preferences to find better matches
+- **Landlord Listings** — Landlords can create and manage rental listings (role-based access)
+- **Resource Pages** — Student housing guide, roommate tips, and lease FAQ
+- **Auth & Profiles** — Sign up, sign in, two-step verification, and customizable user profiles
+- **Admin Dashboard** — Platform moderation for administrators
 
 ---
 
