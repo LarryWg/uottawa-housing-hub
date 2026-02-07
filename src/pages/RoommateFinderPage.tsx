@@ -1,7 +1,11 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { Heart, X, MapPin, Briefcase, Home, Calendar, Sparkles } from "lucide-react";
+import { Heart, X, MapPin, Briefcase, Home, Calendar, Sparkles, Eye, EyeOff } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 // Mock data - replace with your actual data source
 const mockRoommates = [
@@ -62,6 +66,8 @@ const mockRoommates = [
 ];
 
 const RoommateFinderPage = () => {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [roommates, setRoommates] = useState(mockRoommates);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
@@ -70,15 +76,51 @@ const RoommateFinderPage = () => {
   const [isAnimating, setIsAnimating] = useState(false);
   const cardRef = useRef(null);
 
+  // Fetch user profile
+  const { data: profile } = useQuery({
+    queryKey: ["profile", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id,
+  });
+
+  // Toggle profile visibility mutation
+  const toggleVisibility = useMutation({
+    mutationFn: async () => {
+      if (!user?.id) throw new Error("Not authenticated");
+      const newVisibility = !profile?.profile_visible;
+      const { error } = await supabase
+        .from("profiles")
+        .update({ profile_visible: newVisibility })
+        .eq("id", user.id);
+      if (error) throw error;
+      return newVisibility;
+    },
+    onSuccess: (newVisibility) => {
+      queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
+      toast.success(newVisibility ? "Profile is now public" : "Profile is now private");
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
   const currentRoommate = roommates[currentIndex];
 
   const handleSwipe = (direction) => {
-    if (isAnimating) return; // Prevent multiple swipes
+    if (isAnimating) return;
     
     setIsAnimating(true);
     
     if (direction === "right") {
       console.log("Liked:", currentRoommate);
+      // TODO: Save to database/backend
     } else {
       console.log("Passed:", currentRoommate);
     }
@@ -92,7 +134,7 @@ const RoommateFinderPage = () => {
   };
 
   const handleDragStart = (clientX, clientY) => {
-    if (isAnimating) return; // Don't allow dragging during animation
+    if (isAnimating) return;
     setIsDragging(true);
     setDragStart({ x: clientX, y: clientY });
   };
@@ -113,10 +155,8 @@ const RoommateFinderPage = () => {
     const swipeThreshold = 100;
     
     if (Math.abs(dragOffset.x) > swipeThreshold) {
-      // Determine swipe direction
       const direction = dragOffset.x > 0 ? "right" : "left";
       
-      // Animate card off screen
       setDragOffset({
         x: dragOffset.x > 0 ? 1000 : -1000,
         y: dragOffset.y
@@ -124,7 +164,6 @@ const RoommateFinderPage = () => {
       
       handleSwipe(direction);
     } else {
-      // Return to center
       setDragOffset({ x: 0, y: 0 });
     }
   };
@@ -162,7 +201,7 @@ const RoommateFinderPage = () => {
 
   // Button handlers
   const handleButtonSwipe = (direction) => {
-    if (isAnimating) return; // Prevent button spam
+    if (isAnimating) return;
     
     setDragOffset({
       x: direction === "right" ? 1000 : -1000,
@@ -191,6 +230,7 @@ const RoommateFinderPage = () => {
 
   const rotation = dragOffset.x / 20;
   const opacity = Math.abs(dragOffset.x) > 100 ? 0.5 : 1;
+  const isProfileVisible = profile?.profile_visible ?? false;
 
   return (
     <div 
@@ -202,6 +242,33 @@ const RoommateFinderPage = () => {
       <Navbar />
       <main className="flex flex-1 items-center justify-center px-4 py-8">
         <div className="w-full max-w-md">
+          {/* Public/Private Profile Toggle */}
+          {user && profile && (
+            <div className="mb-4 flex justify-end">
+              <button
+                onClick={() => toggleVisibility.mutate()}
+                disabled={toggleVisibility.isPending}
+                className={`flex items-center gap-2 rounded-full px-6 py-3 font-semibold shadow-lg transition-all hover:scale-105 active:scale-95 disabled:opacity-50 ${
+                  isProfileVisible
+                    ? "bg-green-500 text-white"
+                    : "bg-gray-500 text-white"
+                }`}
+              >
+                {isProfileVisible ? (
+                  <>
+                    <Eye className="h-5 w-5" />
+                    Profile Public
+                  </>
+                ) : (
+                  <>
+                    <EyeOff className="h-5 w-5" />
+                    Profile Private
+                  </>
+                )}
+              </button>
+            </div>
+          )}
+
           {/* Card Stack */}
           <div className="relative mb-8 aspect-[3/4] w-full">
             {/* Next card preview */}
@@ -214,11 +281,11 @@ const RoommateFinderPage = () => {
               <>
                 {dragOffset.x > 0 ? (
                   <div className="absolute left-8 top-8 z-10 rounded-lg border-4 border-green-500 bg-white px-6 py-3 text-2xl font-bold text-green-500 rotate-12 shadow-lg">
-                    LIKE
+                    YES
                   </div>
                 ) : (
                   <div className="absolute right-8 top-8 z-10 rounded-lg border-4 border-red-500 bg-white px-6 py-3 text-2xl font-bold text-red-500 -rotate-12 shadow-lg">
-                    NOPE
+                    HELL NO
                   </div>
                 )}
               </>
@@ -355,6 +422,7 @@ const RoommateFinderPage = () => {
           </div>
         </div>
       </main>
+
       <Footer />
     </div>
   );

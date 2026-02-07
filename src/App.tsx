@@ -16,9 +16,9 @@ import ProfilePage from "./pages/ProfilePage";
 import NotFound from "./pages/NotFound";
 
 // ✅ NEW resource pages (adjust paths if your files are elsewhere)
-import StudentHousingGuide from "./pages/resources/StudentHousingGuide";
-import RoommateTips from "./pages/resources/RoommateTips";
-import LeaseFAQ from "./pages/resources/LeaseFAQ";
+import StudentHousingGuide from "./pages/StudentHousingGuidePage";
+import RoommateTips from "./pages/RoomMateTips";
+import LeaseFAQ from "./pages/LeaseFAQ";
 
 const queryClient = new QueryClient();
 

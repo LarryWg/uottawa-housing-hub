@@ -1,5 +1,6 @@
 export interface HousingListing {
   id: string;
+  landlordId?: string | null;
   title: string;
   address: string;
   lat: number;

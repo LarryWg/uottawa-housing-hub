@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUserProfile } from "@/hooks/useUserProfile";
 import { toast } from "sonner";
 
 const profileSchema = z.object({
@@ -52,6 +53,7 @@ const MONTH_OPTIONS = [
 
 const ProfilePage = () => {
   const { user, isLoading: authLoading } = useAuth();
+  const { isLandlord } = useUserProfile();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -152,7 +154,9 @@ const ProfilePage = () => {
         <div className="container max-w-2xl">
           <h1 className="mb-6 text-2xl font-bold tracking-tight">Your profile</h1>
           <p className="mb-8 text-muted-foreground">
-            Introduce yourself and set your housing preferences. This helps potential roommates find you.
+            {isLandlord
+              ? "Manage your landlord profile. Your introduction can be shown to students who inquire about your listings."
+              : "Introduce yourself and set your housing preferences. This helps potential roommates find you."}
           </p>
 
           <Form {...form}>
@@ -192,19 +196,26 @@ const ProfilePage = () => {
                     <FormLabel>Introduction</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Tell potential roommates about yourself — your program, interests, lifestyle, and what you're looking for in a living situation."
+                        placeholder={
+                          isLandlord
+                            ? "Describe your rental business, areas you serve, and what makes your properties great for students."
+                            : "Tell potential roommates about yourself — your program, interests, lifestyle, and what you're looking for in a living situation."
+                        }
                         className="min-h-[120px]"
                         {...field}
                       />
                     </FormControl>
                     <FormDescription>
-                      This will be shown to other users in the roommate finder.
+                      {isLandlord
+                        ? "Optional. Shown to students who view your listings."
+                        : "This will be shown to other users in the roommate finder."}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
+              {!isLandlord && (
               <div className="space-y-4">
                 <h2 className="text-lg font-semibold">Housing preferences</h2>
 
@@ -351,6 +362,7 @@ const ProfilePage = () => {
                   )}
                 />
               </div>
+              )}
 
               <Button type="submit" disabled={updateProfile.isPending}>
                 {updateProfile.isPending ? "Saving…" : "Save profile"}
