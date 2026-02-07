@@ -5,7 +5,7 @@ import {
   ShieldAlert, Scale, DollarSign, AlertCircle, Download,
   ExternalLink, FileText
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -74,12 +74,51 @@ interface AnalysisResult {
   next_steps: string;
 }
 
+const emptyAnalysis: AnalysisResult = {
+  overall_risk_level: "LOW",
+  confidence_score: 0,
+  is_likely_scam: false,
+  scam_indicators: [],
+  legal_violations: [],
+  red_flags: [],
+  concerning_clauses: [],
+  missing_clauses: [],
+  good_points: [],
+  financial_red_flags: [],
+  recommendations: [],
+  overall_summary: "",
+  should_sign: "PROCEED_WITH_CAUTION",
+  next_steps: "",
+};
+
+function normalizeAnalysis(raw: unknown): AnalysisResult {
+  if (!raw || typeof raw !== "object") return emptyAnalysis;
+  const r = raw as Record<string, unknown>;
+  return {
+    overall_risk_level: (r.overall_risk_level as AnalysisResult["overall_risk_level"]) ?? "LOW",
+    confidence_score: typeof r.confidence_score === "number" ? r.confidence_score : 0,
+    is_likely_scam: Boolean(r.is_likely_scam),
+    scam_indicators: Array.isArray(r.scam_indicators) ? r.scam_indicators : [],
+    legal_violations: Array.isArray(r.legal_violations) ? r.legal_violations : [],
+    red_flags: Array.isArray(r.red_flags) ? r.red_flags : [],
+    concerning_clauses: Array.isArray(r.concerning_clauses) ? r.concerning_clauses : [],
+    missing_clauses: Array.isArray(r.missing_clauses) ? r.missing_clauses : [],
+    good_points: Array.isArray(r.good_points) ? r.good_points : [],
+    financial_red_flags: Array.isArray(r.financial_red_flags) ? r.financial_red_flags : [],
+    recommendations: Array.isArray(r.recommendations) ? r.recommendations : [],
+    overall_summary: String(r.overall_summary ?? ""),
+    should_sign: (r.should_sign as AnalysisResult["should_sign"]) ?? "PROCEED_WITH_CAUTION",
+    next_steps: String(r.next_steps ?? ""),
+  };
+}
+
 const LeaseCheckerPage = () => {
   const [file, setFile] = useState<File | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -110,6 +149,15 @@ const LeaseCheckerPage = () => {
     setError(null);
   };
 
+  useEffect(() => {
+    return () => {
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
+      }
+    };
+  }, []);
+
   const analyzeFile = async () => {
     if (!file) return;
 
@@ -117,41 +165,46 @@ const LeaseCheckerPage = () => {
     setProgress(0);
     setError(null);
 
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current);
+      progressIntervalRef.current = null;
+    }
+
+    progressIntervalRef.current = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 90) return 90;
+        return prev + 10;
+      });
+    }, 300);
+
     try {
-      // Simulate progress
-      const progressInterval = setInterval(() => {
-        setProgress((prev) => {
-          if (prev >= 90) {
-            clearInterval(progressInterval);
-            return 90;
-          }
-          return prev + 10;
-        });
-      }, 300);
-
-      // Create FormData and send to backend
+      const apiUrl = import.meta.env.VITE_LEASE_API_URL || "/api";
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append("file", file);
 
-      const response = await fetch('/api/analyze-lease', {
-        method: 'POST',
+      const response = await fetch(`${apiUrl}/analyze-lease`, {
+        method: "POST",
         body: formData,
       });
 
-      clearInterval(progressInterval);
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
+      }
       setProgress(100);
 
       if (!response.ok) {
-        throw new Error('Analysis failed. Please try again.');
+        throw new Error("Analysis failed. Please try again.");
       }
 
       const result = await response.json();
-      setAnalysis(result);
-
+      setAnalysis(normalizeAnalysis(result));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-      
-      // For demo purposes, show mock analysis
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
+      }
+      setError(err instanceof Error ? err.message : "An error occurred");
       setTimeout(() => {
         setAnalysis(getMockAnalysis());
       }, 500);
