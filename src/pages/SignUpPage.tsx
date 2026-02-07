@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -7,6 +7,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -17,6 +18,10 @@ import {
 } from "@/components/ui/form";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { GraduationCap, Home } from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { UserType } from "./LoginPage";
 
 const signUpSchema = z
   .object({
@@ -32,8 +37,13 @@ const signUpSchema = z
 type SignUpFormValues = z.infer<typeof signUpSchema>;
 
 const SignUpPage = () => {
-  const { signUp } = useAuth();
+  const { signUp, user, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!authLoading && user) navigate("/", { replace: true });
+  }, [authLoading, user, navigate]);
+  const [userType, setUserType] = useState<UserType | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<SignUpFormValues>({
@@ -42,13 +52,23 @@ const SignUpPage = () => {
   });
 
   const onSubmit = async (values: SignUpFormValues) => {
+    if (!userType) {
+      toast.error("Please select Student or Landlord");
+      return;
+    }
     setIsSubmitting(true);
-    const { error } = await signUp(values.email, values.password);
+    const { data, error } = await signUp(values.email, values.password);
     setIsSubmitting(false);
 
     if (error) {
       toast.error(error.message);
       return;
+    }
+
+    if (data?.user?.id) {
+      await supabase
+        .from("profiles")
+        .upsert({ id: data.user.id, user_type: userType }, { onConflict: "id" });
     }
 
     toast.success("Account created! Set up your profile.");
@@ -63,8 +83,45 @@ const SignUpPage = () => {
           <div className="text-center">
             <h1 className="text-2xl font-bold tracking-tight">Create an account</h1>
             <p className="mt-2 text-muted-foreground">
-              Sign up to set your housing preferences and introduce yourself to potential roommates.
+              Choose how you&apos;re using the platform, then sign up.
             </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <Card
+              className={cn(
+                "cursor-pointer transition-all hover:border-primary/50 hover:shadow-md",
+                userType === "student" && "border-primary ring-2 ring-primary/20"
+              )}
+              onClick={() => setUserType("student")}
+            >
+              <CardContent className="flex flex-col items-center gap-2 pt-6">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <GraduationCap className="h-6 w-6" />
+                </div>
+                <span className="font-semibold">Student</span>
+                <span className="text-center text-xs text-muted-foreground">
+                  Find housing & roommates
+                </span>
+              </CardContent>
+            </Card>
+            <Card
+              className={cn(
+                "cursor-pointer transition-all hover:border-primary/50 hover:shadow-md",
+                userType === "landlord" && "border-primary ring-2 ring-primary/20"
+              )}
+              onClick={() => setUserType("landlord")}
+            >
+              <CardContent className="flex flex-col items-center gap-2 pt-6">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <Home className="h-6 w-6" />
+                </div>
+                <span className="font-semibold">Landlord</span>
+                <span className="text-center text-xs text-muted-foreground">
+                  List & manage properties
+                </span>
+              </CardContent>
+            </Card>
           </div>
 
           <Form {...form}>
@@ -123,8 +180,8 @@ const SignUpPage = () => {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {isSubmitting ? "Creating account…" : "Sign up"}
+              <Button type="submit" className="w-full" disabled={isSubmitting || !userType}>
+                {isSubmitting ? "Creating account…" : `Sign up as ${userType ?? "…"}`}
               </Button>
             </form>
           </Form>

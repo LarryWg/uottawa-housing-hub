@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -7,6 +7,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -17,6 +18,10 @@ import {
 } from "@/components/ui/form";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { GraduationCap, Home } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+export type UserType = "student" | "landlord";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email"),
@@ -26,8 +31,15 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 const LoginPage = () => {
-  const { signIn } = useAuth();
+  const [userType, setUserType] = useState<UserType | null>(null);
+  const { signIn, user, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = (location.state as { from?: { pathname: string } })?.from?.pathname ?? "/";
+
+  useEffect(() => {
+    if (!authLoading && user) navigate(from, { replace: true });
+  }, [authLoading, user, navigate, from]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<LoginFormValues>({
@@ -46,7 +58,7 @@ const LoginPage = () => {
     }
 
     toast.success("Welcome back!");
-    navigate("/profile");
+    navigate(from, { replace: true });
   };
 
   return (
@@ -57,11 +69,49 @@ const LoginPage = () => {
           <div className="text-center">
             <h1 className="text-2xl font-bold tracking-tight">Sign in</h1>
             <p className="mt-2 text-muted-foreground">
-              Sign in to manage your housing preferences and find roommates.
+              Choose how you&apos;re using the platform, then sign in.
             </p>
           </div>
 
-          <Form {...form}>
+          <div className="grid grid-cols-2 gap-3">
+            <Card
+              className={cn(
+                "cursor-pointer transition-all hover:border-primary/50 hover:shadow-md",
+                userType === "student" && "border-primary ring-2 ring-primary/20"
+              )}
+              onClick={() => setUserType("student")}
+            >
+              <CardContent className="flex flex-col items-center gap-2 pt-6">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <GraduationCap className="h-6 w-6" />
+                </div>
+                <span className="font-semibold">Student</span>
+                <span className="text-center text-xs text-muted-foreground">
+                  Find housing & roommates
+                </span>
+              </CardContent>
+            </Card>
+            <Card
+              className={cn(
+                "cursor-pointer transition-all hover:border-primary/50 hover:shadow-md",
+                userType === "landlord" && "border-primary ring-2 ring-primary/20"
+              )}
+              onClick={() => setUserType("landlord")}
+            >
+              <CardContent className="flex flex-col items-center gap-2 pt-6">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <Home className="h-6 w-6" />
+                </div>
+                <span className="font-semibold">Landlord</span>
+                <span className="text-center text-xs text-muted-foreground">
+                  List & manage properties
+                </span>
+              </CardContent>
+            </Card>
+          </div>
+
+          {userType && (
+            <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
                 control={form.control}
@@ -100,10 +150,11 @@ const LoginPage = () => {
                 )}
               />
               <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {isSubmitting ? "Signing in…" : "Sign in"}
+                {isSubmitting ? "Signing in…" : `Sign in as ${userType}`}
               </Button>
             </form>
           </Form>
+          )}
 
           <p className="text-center text-sm text-muted-foreground">
             Don&apos;t have an account?{" "}
