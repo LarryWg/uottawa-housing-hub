@@ -1,4 +1,4 @@
-# uOttawa Housing Hub
+# uOttawa Housing Hub | 1st Place @ UOttawa Student Housing Hackathon
 
 A housing platform for University of Ottawa students. Connect with compatible roommates, explore nearby apartments on an interactive map, and get AI-powered lease analysis — all in one place.
 
