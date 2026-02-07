@@ -92,6 +92,51 @@ const RoommateFinderPage = () => {
     enabled: !!user?.id,
   });
 
+  // Convert profile data to roommate card format
+  const convertProfileToRoommate = (profileData) => {
+    if (!profileData || !user) return null;
+    
+    // Extract interests from introduction or use empty array
+    const interests = profileData.introduction 
+      ? profileData.introduction.split(',').map(s => s.trim()).slice(0, 4)
+      : [];
+
+    return {
+      id: `user-${user.id}`,
+      name: user.email?.split('@')[0] || "You", // Use email username or "You"
+      age: 21, // You may want to add age to profile table
+      image: user.user_metadata?.avatar_url || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=800&q=80",
+      program: profileData.user_type === "student" ? "Student" : "Landlord",
+      location: profileData.preferred_areas?.[0] || "Ottawa, ON",
+      budget: profileData.max_budget ? `Up to ${profileData.max_budget}` : "Flexible",
+      moveInDate: profileData.move_in_month || "Flexible",
+      bio: profileData.introduction || "No bio yet.",
+      interests: interests.length > 0 ? interests : ["No interests listed"],
+      preferences: {
+        cleanliness: "Not specified",
+        socialLevel: "Not specified",
+        pets: profileData.pet_friendly ? "Pet friendly" : "No pets",
+        lifestyle: "Flexible"
+      }
+    };
+  };
+
+  // Add or remove user profile from roommates pool when visibility changes
+  useEffect(() => {
+    if (!profile || !user) return;
+
+    const userRoommateCard = convertProfileToRoommate(profile);
+    const userCardExists = roommates.some(r => r.id === `user-${user.id}`);
+
+    if (profile.profile_visible && userRoommateCard && !userCardExists) {
+      // Add user's profile to the end of the pool
+      setRoommates(prev => [...prev, userRoommateCard]);
+    } else if (!profile.profile_visible && userCardExists) {
+      // Remove user's profile from the pool
+      setRoommates(prev => prev.filter(r => r.id !== `user-${user.id}`));
+    }
+  }, [profile?.profile_visible, user?.id]);
+
   // Toggle profile visibility mutation
   const toggleVisibility = useMutation({
     mutationFn: async () => {
@@ -106,7 +151,7 @@ const RoommateFinderPage = () => {
     },
     onSuccess: (newVisibility) => {
       queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
-      toast.success(newVisibility ? "Profile is now public" : "Profile is now private");
+      toast.success(newVisibility ? "Profile is now public and added to the pool!" : "Profile is now private and removed from pool");
     },
     onError: (err) => toast.error(err.message),
   });
