@@ -16,7 +16,8 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-sm text-muted-foreground">
-              Helping University of Ottawa students find their perfect roommate and housing.
+              Helping University of Ottawa students find their perfect roommate and
+              housing.
             </p>
           </div>
 
@@ -45,19 +46,22 @@ export function Footer() {
             <h4 className="mb-4 font-semibold">Resources</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
-                <a href="#" className="hover:text-primary">
+                <Link
+                  to="/resources/student-housing-guide"
+                  className="hover:text-primary"
+                >
                   Student Housing Guide
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-primary">
+                <Link to="/resources/roommate-tips" className="hover:text-primary">
                   Roommate Tips
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-primary">
+                <Link to="/resources/lease-faq" className="hover:text-primary">
                   Lease FAQ
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -68,18 +72,21 @@ export function Footer() {
               <a
                 href="#"
                 className="flex h-10 w-10 items-center justify-center rounded-lg border bg-background text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+                aria-label="GitHub"
               >
                 <Github className="h-5 w-5" />
               </a>
               <a
                 href="#"
                 className="flex h-10 w-10 items-center justify-center rounded-lg border bg-background text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+                aria-label="Twitter"
               >
                 <Twitter className="h-5 w-5" />
               </a>
               <a
                 href="mailto:support@uottawahousing.app"
                 className="flex h-10 w-10 items-center justify-center rounded-lg border bg-background text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+                aria-label="Email support"
               >
                 <Mail className="h-5 w-5" />
               </a>
@@ -88,7 +95,10 @@ export function Footer() {
         </div>
 
         <div className="mt-12 border-t pt-8 text-center text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} UOttawa Housing Hub. Made with ❤️ for students.</p>
+          <p>
+            © {new Date().getFullYear()} UOttawa Housing Hub. Made with ❤️ for
+            students.
+          </p>
         </div>
       </div>
     </footer>
