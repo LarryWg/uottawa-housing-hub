@@ -123,39 +123,36 @@ The API runs at `http://localhost:5000`.
 
 ---
 
-##Screenshots
+## Screenshots
 
-Signin/Create Account Screen
-<img width="1863" height="1066" alt="image" src="https://github.com/user-attachments/assets/e214b70d-73a4-4e8b-9900-7c25b9539e56" />
+### Sign In / Create Account
+![Sign in and create account screen](https://github.com/user-attachments/assets/e214b70d-73a4-4e8b-9900-7c25b9539e56)
 
-Create Customizable Profiles Upon Creating An Account
-<img width="1863" height="1065" alt="image" src="https://github.com/user-attachments/assets/eb082fd9-51f4-4b7a-aeff-ad2b57c95c02" />
+### Customizable Profiles
+![Create customizable profiles upon creating an account](https://github.com/user-attachments/assets/eb082fd9-51f4-4b7a-aeff-ad2b57c95c02)
 
-Fully Functioning Two Step Verification
-<img width="1496" height="715" alt="image" src="https://github.com/user-attachments/assets/baf370b7-3bcb-40cf-86fd-f387b8c68d11" />
+### Two-Step Verification
+![Fully functioning two-step verification](https://github.com/user-attachments/assets/baf370b7-3bcb-40cf-86fd-f387b8c68d11)
 
-Home Screen
-<img width="1869" height="1062" alt="image" src="https://github.com/user-attachments/assets/ee2e7998-868a-4b90-a581-965ba64ddc4d" />
+### Home Screen
+![Home screen](https://github.com/user-attachments/assets/ee2e7998-868a-4b90-a581-965ba64ddc4d)
 
-Feature One: Swiping Style Room Mate Compatibility Feature
-<img width="1870" height="1064" alt="image" src="https://github.com/user-attachments/assets/320903af-8e29-45d6-8cea-4e0c7ed4a565" />
+### Feature 1: Roommate Compatibility
+![Swiping-style roommate compatibility feature](https://github.com/user-attachments/assets/320903af-8e29-45d6-8cea-4e0c7ed4a565)
 
-Feature Two: Interactive Housing Map
-<img width="1866" height="1064" alt="image" src="https://github.com/user-attachments/assets/146bc88d-fe0d-42ce-a8a6-49ce15ab3fff" />
+### Feature 2: Interactive Housing Map
+![Interactive housing map](https://github.com/user-attachments/assets/146bc88d-fe0d-42ce-a8a6-49ce15ab3fff)
 
-Feature Three: AI Powered Lease Checker
-<img width="1865" height="1066" alt="image" src="https://github.com/user-attachments/assets/de164cb1-9099-4ec6-8cf9-f4a9b5f8dd7e" />
+### Feature 3: AI-Powered Lease Checker
+![AI-powered lease checker](https://github.com/user-attachments/assets/de164cb1-9099-4ec6-8cf9-f4a9b5f8dd7e)
 
-#Feature Four: Housing Preference Filters
-<img width="1858" height="1065" alt="image" src="https://github.com/user-attachments/assets/394e6247-caca-4da7-b4c8-ad6c9421668b" />
+### Feature 4: Housing Preference Filters
+![Housing preference filters](https://github.com/user-attachments/assets/394e6247-caca-4da7-b4c8-ad6c9421668b)
 
-#Additional Informative Resource Pages
-<img width="1866" height="1065" alt="image" src="https://github.com/user-attachments/assets/3cbe9b4a-e2d2-4748-a8b1-dcb111345131" />
-<img width="1864" height="1069" alt="image" src="https://github.com/user-attachments/assets/8fdeadae-5f2d-4c76-867c-94220b871424" />
-<img width="1860" height="1065" alt="image" src="https://github.com/user-attachments/assets/5456fa6c-b893-4a49-902b-730fcb1a5c2d" />
-
-
-
+### Additional Resource Pages
+![Resource pages](https://github.com/user-attachments/assets/3cbe9b4a-e2d2-4748-a8b1-dcb111345131)
+![Resource pages](https://github.com/user-attachments/assets/8fdeadae-5f2d-4c76-867c-94220b871424)
+![Resource pages](https://github.com/user-attachments/assets/5456fa6c-b893-4a49-902b-730fcb1a5c2d)
 
 ## License
 
