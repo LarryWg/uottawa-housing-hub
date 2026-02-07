@@ -2,6 +2,10 @@
 
 A housing platform for University of Ottawa students. Connect with compatible roommates, explore nearby apartments on an interactive map, and get AI-powered lease analysis — all in one place.
 
+## Screenshots
+
+![uOttawa Housing Hub - Sign in, profiles, 2FA, home, roommate matcher, housing map, lease checker, filters, and resource pages](docs/screenshots.gif)
+
 ## Features
 
 - **Roommate Matcher** — Swipe through compatible profiles based on lifestyle, budget, and preferences
@@ -129,37 +133,3 @@ The API runs at `http://localhost:5000`.
 
 ---
 
-## Screenshots
-
-### Sign In / Create Account
-![Sign in and create account screen](https://github.com/user-attachments/assets/e214b70d-73a4-4e8b-9900-7c25b9539e56)
-
-### Customizable Profiles
-![Create customizable profiles upon creating an account](https://github.com/user-attachments/assets/eb082fd9-51f4-4b7a-aeff-ad2b57c95c02)
-
-### Two-Step Verification
-![Fully functioning two-step verification](https://github.com/user-attachments/assets/baf370b7-3bcb-40cf-86fd-f387b8c68d11)
-
-### Home Screen
-![Home screen](https://github.com/user-attachments/assets/ee2e7998-868a-4b90-a581-965ba64ddc4d)
-
-### Feature 1: Roommate Compatibility
-![Swiping-style roommate compatibility feature](https://github.com/user-attachments/assets/320903af-8e29-45d6-8cea-4e0c7ed4a565)
-
-### Feature 2: Interactive Housing Map
-![Interactive housing map](https://github.com/user-attachments/assets/146bc88d-fe0d-42ce-a8a6-49ce15ab3fff)
-
-### Feature 3: AI-Powered Lease Checker
-![AI-powered lease checker](https://github.com/user-attachments/assets/de164cb1-9099-4ec6-8cf9-f4a9b5f8dd7e)
-
-### Feature 4: Housing Preference Filters
-![Housing preference filters](https://github.com/user-attachments/assets/394e6247-caca-4da7-b4c8-ad6c9421668b)
-
-### Additional Resource Pages
-![Resource pages](https://github.com/user-attachments/assets/3cbe9b4a-e2d2-4748-a8b1-dcb111345131)
-![Resource pages](https://github.com/user-attachments/assets/8fdeadae-5f2d-4c76-867c-94220b871424)
-![Resource pages](https://github.com/user-attachments/assets/5456fa6c-b893-4a49-902b-730fcb1a5c2d)
-
-## License
-
-Private project.
