@@ -108,18 +108,12 @@ const RoommateTips = () => {
                   Use the Roommate Finder to compare preferences (sleep schedule, social level,
                   cleanliness, pets, etc.).
                 </p>
-                <div className="mt-4 flex flex-wrap gap-3">
+                <div className="mt-4">
                   <a
                     href="/roommate-finder"
                     className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
                   >
                     Go to Roommate Finder
-                  </a>
-                  <a
-                    href="/my-matches"
-                    className="inline-flex items-center justify-center rounded-md border px-4 py-2 text-sm font-medium hover:bg-accent"
-                  >
-                    View My Matches
                   </a>
                 </div>
               </div>

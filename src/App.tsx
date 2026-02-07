@@ -9,7 +9,6 @@ import Index from "./pages/Index";
 import RoommateFinderPage from "./pages/RoommateFinderPage";
 import HousingMapPage from "./pages/HousingMapPage";
 import LeaseCheckerPage from "./pages/LeaseCheckerPage";
-import MatchesPage from "./pages/MatchesPage";
 import HousingAdvisorPage from "./pages/HousingAdvisorPage";
 import AuthPage from "./pages/AuthPage";
 import ProfilePage from "./pages/ProfilePage";
@@ -70,14 +69,6 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <LeaseCheckerPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/matches"
-              element={
-                <ProtectedRoute allowedRole="student">
-                  <MatchesPage />
                 </ProtectedRoute>
               }
             />
