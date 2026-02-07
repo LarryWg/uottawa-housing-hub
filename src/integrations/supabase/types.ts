@@ -17,7 +17,6 @@ export type Database = {
       listings: {
         Row: {
           id: string
-          landlord_id: string | null
           title: string
           address: string
           lat: number
@@ -28,10 +27,12 @@ export type Database = {
           distance_to_campus: string
           description: string | null
           created_at: string | null
+          landlord_id: string | null
+          landlord_name: string | null
+          landlord_email: string | null
         }
         Insert: {
           id?: string
-          landlord_id?: string | null
           title: string
           address: string
           lat: number
@@ -41,6 +42,9 @@ export type Database = {
           bathrooms: number
           distance_to_campus: string
           description?: string | null
+          landlord_id?: string | null
+          landlord_name?: string | null
+          landlord_email?: string | null
         }
         Update: Partial<Database["public"]["Tables"]["listings"]["Insert"]>
       }
@@ -55,6 +59,8 @@ export type Database = {
           preferred_areas: string[] | null
           move_in_month: string | null
           pet_friendly: boolean | null
+          display_name: string | null
+          avatar_url: string | null
           created_at: string | null
           updated_at: string | null
         }
@@ -68,6 +74,8 @@ export type Database = {
           preferred_areas?: string[] | null
           move_in_month?: string | null
           pet_friendly?: boolean | null
+          display_name?: string | null
+          avatar_url?: string | null
         }
         Update: {
           user_type?: "student" | "landlord" | null
@@ -78,6 +86,8 @@ export type Database = {
           preferred_areas?: string[] | null
           move_in_month?: string | null
           pet_friendly?: boolean | null
+          display_name?: string | null
+          avatar_url?: string | null
           updated_at?: string
         }
       }

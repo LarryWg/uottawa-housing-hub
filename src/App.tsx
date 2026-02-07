@@ -4,21 +4,21 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
-
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import RoommateFinderPage from "./pages/RoommateFinderPage";
 import HousingMapPage from "./pages/HousingMapPage";
 import LeaseCheckerPage from "./pages/LeaseCheckerPage";
 import MatchesPage from "./pages/MatchesPage";
-import LoginPage from "./pages/LoginPage";
-import SignUpPage from "./pages/SignUpPage";
+import HousingAdvisorPage from "./pages/HousingAdvisorPage";
+import AuthPage from "./pages/AuthPage";
 import ProfilePage from "./pages/ProfilePage";
-import NotFound from "./pages/NotFound";
-
-// ✅ NEW resource pages (adjust paths if your files are elsewhere)
+import MyListingsPage from "./pages/MyListingsPage";
+import AdminDashboardPage from "./pages/AdminDashboardPage";
 import StudentHousingGuide from "./pages/StudentHousingGuidePage";
 import RoommateTips from "./pages/RoomMateTips";
 import LeaseFAQ from "./pages/LeaseFAQ";
+import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
@@ -30,14 +30,10 @@ const App = () => (
           <Toaster />
           <Sonner />
           <Routes>
-            <Route path="/" element={<Index />} />
+            <Route path="/login" element={<AuthPage />} />
+            <Route path="/signup" element={<AuthPage />} />
 
-            <Route path="/roommate-finder" element={<RoommateFinderPage />} />
-            <Route path="/housing-map" element={<HousingMapPage />} />
-            <Route path="/lease-checker" element={<LeaseCheckerPage />} />
-            <Route path="/matches" element={<MatchesPage />} />
-
-            {/* ✅ NEW resource routes */}
+            {/* Public resource pages */}
             <Route
               path="/resources/student-housing-guide"
               element={<StudentHousingGuide />}
@@ -45,10 +41,78 @@ const App = () => (
             <Route path="/resources/roommate-tips" element={<RoommateTips />} />
             <Route path="/resources/lease-faq" element={<LeaseFAQ />} />
 
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignUpPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Index />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/roommate-finder"
+              element={
+                <ProtectedRoute allowedRole="student">
+                  <RoommateFinderPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/housing-map"
+              element={
+                <ProtectedRoute>
+                  <HousingMapPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/lease-checker"
+              element={
+                <ProtectedRoute>
+                  <LeaseCheckerPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/matches"
+              element={
+                <ProtectedRoute allowedRole="student">
+                  <MatchesPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/my-listings"
+              element={
+                <ProtectedRoute allowedRole="landlord">
+                  <MyListingsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/housing-advisor"
+              element={
+                <ProtectedRoute>
+                  <HousingAdvisorPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <ProfilePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute>
+                  <AdminDashboardPage />
+                </ProtectedRoute>
+              }
+            />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

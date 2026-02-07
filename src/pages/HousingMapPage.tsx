@@ -6,12 +6,15 @@ import { useListings } from "@/hooks/useListings";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { MapPin, Bed, Bath, Home } from "lucide-react";
+import { MapPin, Bed, Bath, Home, MessageCircle } from "lucide-react";
 import type { HousingListing } from "@/types/listings";
+import { Button } from "@/components/ui/button";
+import { LocalChatPopup } from "@/components/messaging/LocalChatPopup";
 
 const HousingMapPage = () => {
   const { data: listings = [], isLoading } = useListings();
   const [selectedListing, setSelectedListing] = useState<HousingListing | null>(null);
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -76,6 +79,32 @@ const HousingMapPage = () => {
                 ))}
               </div>
             )}
+
+            <Card className="border-dashed">
+              <CardHeader className="pb-2">
+                <div className="flex items-center gap-2 text-sm font-semibold">
+                  <MessageCircle className="h-4 w-4 text-primary" />
+                  Message a landlord
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="text-xs text-muted-foreground">
+                  {selectedListing
+                    ? `Selected: ${selectedListing.title}`
+                    : "Select a listing to start a message."}
+                </div>
+                <Button
+                  onClick={() => setIsChatOpen(true)}
+                  className="w-full"
+                  disabled={!selectedListing}
+                >
+                  Open chat
+                </Button>
+                <p className="text-xs text-muted-foreground">
+                  Opens a local-only chat in the corner.
+                </p>
+              </CardContent>
+            </Card>
           </aside>
 
           {/* Map */}
@@ -89,6 +118,15 @@ const HousingMapPage = () => {
         </div>
       </main>
       <Footer />
+      {selectedListing && (
+        <LocalChatPopup
+          isOpen={isChatOpen}
+          onClose={() => setIsChatOpen(false)}
+          threadId={`listing-${selectedListing.id}`}
+          recipientName={selectedListing.landlordName ?? "Listing owner"}
+          contextLabel={selectedListing.title}
+        />
+      )}
     </div>
   );
 };

@@ -1,7 +1,8 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { Heart, X, MapPin, Briefcase, Home, Calendar, Sparkles, Eye, EyeOff } from "lucide-react";
+import { Heart, X, MapPin, Briefcase, Home, Calendar, Sparkles, Eye, EyeOff, MessageCircle } from "lucide-react";
+import { LocalChatPopup } from "@/components/messaging/LocalChatPopup";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -74,6 +75,7 @@ const RoommateFinderPage = () => {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const cardRef = useRef(null);
 
   // Fetch user profile
@@ -437,6 +439,25 @@ const RoommateFinderPage = () => {
                     </div>
                   </div>
                 </div>
+
+                <div className="mt-5 flex items-center gap-3 rounded-2xl border bg-gray-50 p-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                    <MessageCircle className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-sm font-semibold text-gray-900">Message this roommate</div>
+                    <div className="text-xs text-gray-500">
+                      Opens a local-only chat in the corner.
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsChatOpen(true)}
+                    className="rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary/90"
+                  >
+                    Open chat
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -469,6 +490,15 @@ const RoommateFinderPage = () => {
       </main>
 
       <Footer />
+      {currentRoommate && (
+        <LocalChatPopup
+          isOpen={isChatOpen}
+          onClose={() => setIsChatOpen(false)}
+          threadId={`roommate-${currentRoommate.id}`}
+          recipientName={currentRoommate.name}
+          contextLabel={currentRoommate.program}
+        />
+      )}
     </div>
   );
 };

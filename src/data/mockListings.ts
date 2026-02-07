@@ -14,6 +14,9 @@ export const MOCK_LISTINGS: HousingListing[] = [
     bathrooms: 1,
     distanceToCampus: "8 min walk",
     description: "Bright apartment in Sandy Hill, perfect for students.",
+    landlordId: null,
+    landlordName: "Listing owner",
+    landlordEmail: null,
   },
   {
     id: "2",
@@ -26,6 +29,9 @@ export const MOCK_LISTINGS: HousingListing[] = [
     bathrooms: 1,
     distanceToCampus: "12 min walk",
     description: "Steps from restaurants and nightlife.",
+    landlordId: null,
+    landlordName: "Listing owner",
+    landlordEmail: null,
   },
   {
     id: "3",
@@ -38,6 +44,9 @@ export const MOCK_LISTINGS: HousingListing[] = [
     bathrooms: 2,
     distanceToCampus: "15 min walk",
     description: "Great for a group of roommates.",
+    landlordId: null,
+    landlordName: "Listing owner",
+    landlordEmail: null,
   },
   {
     id: "4",
@@ -50,6 +59,9 @@ export const MOCK_LISTINGS: HousingListing[] = [
     bathrooms: 1,
     distanceToCampus: "6 min walk",
     description: "Affordable studio close to campus.",
+    landlordId: null,
+    landlordName: "Listing owner",
+    landlordEmail: null,
   },
   {
     id: "5",
@@ -62,5 +74,8 @@ export const MOCK_LISTINGS: HousingListing[] = [
     bathrooms: 1,
     distanceToCampus: "10 min walk",
     description: "Includes parking spot.",
+    landlordId: null,
+    landlordName: "Listing owner",
+    landlordEmail: null,
   },
 ];

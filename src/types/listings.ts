@@ -10,4 +10,7 @@ export interface HousingListing {
   bathrooms: number;
   distanceToCampus: string; // e.g. "10 min walk"
   description?: string;
+  landlordId?: string | null;
+  landlordName?: string | null;
+  landlordEmail?: string | null;
 }

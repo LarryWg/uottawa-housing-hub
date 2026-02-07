@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Users, Map, FileText, Heart, Menu, X, User, LogOut, Shield, LayoutList } from "lucide-react";
+import { Home, Users, Map, FileText, Heart, Menu, X, User, LogOut, Shield, MessageCircle, LayoutList } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ const studentNavLinks = [
   { to: "/roommate-finder", label: "Roommate Finder", icon: Users },
   { to: "/housing-map", label: "Housing Map", icon: Map },
   { to: "/lease-checker", label: "Lease Checker", icon: FileText },
+  { to: "/housing-advisor", label: "Housing Advisor", icon: MessageCircle },
   { to: "/matches", label: "My Matches", icon: Heart },
 ];
 
