@@ -5,36 +5,33 @@ A housing platform for University of Ottawa students. Connect with compatible ro
 ## Features
 
 - **Roommate Matcher** — Swipe through compatible profiles based on lifestyle, budget, and preferences
-- **Interactive Housing Map** — Explore apartments near campus with natural language search (e.g., "2BR under $1000 within 15 min walk")
+- **Interactive Housing Map** — Explore apartments near campus with Mapbox
 - **Lease Checker** — Upload your lease for AI analysis of red flags, hidden fees, and concerning terms
 
-## Tech Stack
+---
+
+## Frontend
+
+React/Vite application with TypeScript, Tailwind CSS, and shadcn-ui.
+
+### Tech Stack
+
 - Vite
 - TypeScript
 - React
 - shadcn-ui
 - Tailwind CSS
-- Supabase (auth, database, storage)
+- Supabase (auth, database)
 - Mapbox GL
 - Framer Motion
 
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+ and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-### Installation
+### Setup
 
 ```sh
-# Clone the repository
-git clone <YOUR_GIT_URL>
-cd uottawa-housing-hub
-
 # Install dependencies
 npm install
 
-# Start the development server
+# Start development server
 npm run dev
 ```
 
@@ -42,9 +39,17 @@ The app will be available at `http://localhost:8080`.
 
 ### Environment Variables
 
-Create a `.env` file in the project root. See `.env.example` (if present) for required variables. You'll typically need Supabase and Mapbox credentials.
+Create a `.env` file in the project root. See `.env.example` for required variables:
 
-## Scripts
+| Variable | Description |
+|----------|-------------|
+| `VITE_SUPABASE_URL` | Supabase project URL |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Supabase anon/public key |
+| `VITE_MAPBOX_ACCESS_TOKEN` | Mapbox public token (for housing map) |
+| `VITE_ADMIN_EMAIL` | (Optional) Bootstrap admin email |
+| `VITE_LEASE_API_URL` | (Optional) Backend API URL for lease checker |
+
+### Scripts
 
 | Command | Description |
 |---------|-------------|
@@ -54,7 +59,7 @@ Create a `.env` file in the project root. See `.env.example` (if present) for re
 | `npm run lint` | Run ESLint |
 | `npm run test` | Run Vitest tests |
 
-## Project Structure
+### Project Structure
 
 ```
 src/
@@ -67,6 +72,56 @@ src/
 ├── lib/            # Utilities
 └── hooks/          # Custom React hooks
 ```
+
+---
+
+## Backend
+
+Flask API for the AI Lease Checker. Handles PDF uploads, text extraction, and AI-powered lease analysis via Anthropic Claude.
+
+### Tech Stack
+
+- Flask
+- Anthropic Claude (AI)
+- PyPDF / pdfplumber (PDF extraction)
+- python-docx (Word documents)
+
+### Setup
+
+```sh
+# Create virtual environment (recommended)
+python -m venv venv
+source venv/bin/activate   # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Set API key
+export ANTHROPIC_API_KEY=your-anthropic-api-key
+
+# Run the server
+cd backend
+python api.py
+```
+
+The API runs at `http://localhost:5000`.
+
+### API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/analyze-lease` | POST | Upload PDF/DOC/DOCX lease for AI analysis |
+| `/api/generate-report` | POST | Generate HTML report from analysis |
+| `/api/health` | GET | Health check |
+| `/api/ontario-laws` | GET | Ontario housing law reference |
+
+### Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `ANTHROPIC_API_KEY` | Anthropic API key for Claude (required for lease analysis) |
+
+---
 
 ## License
 
